@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Toolbox Talk · Daily L&amp;D</title>
+<meta name="theme-color" content="#14202b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e8eaeb;--card:#f6f7f7;--ink:#17222c;--mute:#5b6874;--line:#c3c9ce;--acc:#f5b700;--accink:#17222c;--ok:#1d7a46;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1a24;--card:#16232f;--ink:#e9eef2;--mute:#93a1ad;--line:#2b3b49;--ok:#5fcf8c;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Barlow,system-ui,-apple-system,"Segoe UI",sans-serif}
+body{padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+.wrap{max-width:680px;margin:0 auto;padding:16px}
+h1,h2,h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;line-height:1.1;margin:0}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;padding:8px 0 14px;border-bottom:4px solid var(--acc)}
+header h1{font-size:32px}
+.badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.badge{font:700 18px "Barlow Condensed",sans-serif;background:var(--acc);color:var(--accink);padding:3px 10px;border-radius:2px;white-space:nowrap}
+.badge.dk{background:var(--ink);color:var(--bg)}
+nav{display:flex;gap:4px;margin:14px 0}
+nav button{flex:1;padding:10px 2px;border:2px solid var(--line);background:transparent;color:var(--ink);font:600 15px Barlow,sans-serif;cursor:pointer;border-radius:2px}
+nav button[aria-selected=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.card{background:var(--card);border:1px solid var(--line);border-left:8px solid var(--acc);padding:18px;border-radius:2px;margin-bottom:14px}
+.site{color:var(--mute);font-weight:600;font-size:14px;margin-bottom:6px}
+.card h2{font-size:30px;margin-bottom:10px}
+.card h3{font-size:22px;margin-bottom:8px}
+.q{font-weight:600;margin:12px 0}
+pre{white-space:pre-wrap;word-break:break-word;font:14.5px/1.5 Barlow,sans-serif;background:var(--bg);border:2px dashed var(--line);padding:12px;margin:10px 0;border-radius:2px}
+label{display:block;font-weight:600;margin:14px 0 6px}
+textarea,input{width:100%;font:inherit;padding:10px;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:2px}
+.btn{background:var(--acc);color:var(--accink);border:0;padding:11px 18px;font:700 16px Barlow,sans-serif;border-radius:2px;cursor:pointer;margin:12px 8px 0 0}
+.btn.alt{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.btn:disabled{opacity:.55;cursor:default}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.res{margin-top:16px;border-top:2px solid var(--line);padding-top:12px}
+.big{font:700 44px "Barlow Condensed",sans-serif}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding:10px 0}
+.row .btn{margin:0}
+.entry{border-bottom:1px solid var(--line);padding:12px 0}.entry small,.mute{color:var(--mute)}
+.bar{height:10px;background:var(--line);border-radius:2px;margin:8px 0}.bar i{display:block;height:100%;background:var(--acc)}
+.msg{color:var(--ok);font-weight:600;margin-top:8px}
+[hidden]{display:none!important}
+footer{color:var(--mute);font-size:13px;padding:20px 0 8px}
+@media(max-width:420px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>Toolbox Talk</h1><div class="badges"><div class="badge dk" id="bLvl"></div><div class="badge" id="bStreak"></div><div class="badge" id="bCoins"></div></div></header>
+<nav role="tablist">
+<button role="tab" aria-selected="true" data-v="today">Today</button>
+<button role="tab" aria-selected="false" data-v="game">Rewards</button>
+<button role="tab" aria-selected="false" data-v="roi">ROI</button>
+<button role="tab" aria-selected="false" data-v="log">Log</button>
+</nav>
+
+<section id="today"></section>
+
+<section id="game" hidden>
+<div class="card"><h3 id="lvlName"></h3><div class="mute" id="lvlNext"></div><div class="bar"><i id="lvlBar"></i></div></div>
+<div class="card"><h3>Daily reward</h3><div id="claimBox"></div></div>
+<div class="card"><h3>Gift code</h3><p class="mute" style="margin-top:0">Got a code from a friend? Paste it to receive the coins.</p>
+<input id="gcode" placeholder="TBT-..." aria-label="Gift code"><button class="btn" id="gbtn">Redeem gift</button><div id="gmsg" class="msg"></div></div>
+<div class="card"><h3>Reward shop</h3><p class="mute" style="margin-top:0">Spend coins on treats you set yourself.</p><div id="shop"></div>
+<label for="tn">Add your own treat</label><div class="grid"><input id="tn" placeholder="Name of treat"><input id="tp" type="number" inputmode="numeric" min="1" placeholder="Cost in coins"></div>
+<button class="btn alt" id="tadd">Add treat</button></div>
+</section>
+
+<section id="roi" hidden>
+<div class="card"><h2>Training ROI check</h2>
+<p class="site">Fill in what you know. Be conservative on attribution.</p>
+<div class="grid">
+<div><label for="r1">Total program cost</label><input id="r1" type="number" inputmode="decimal" min="0"></div>
+<div><label for="r2">Participants</label><input id="r2" type="number" inputmode="numeric" min="0"></div>
+<div><label for="r3">Gain per person per month</label><input id="r3" type="number" inputmode="decimal" min="0"></div>
+<div><label for="r4">Months the gain lasts</label><input id="r4" type="number" inputmode="numeric" min="0"></div>
+</div>
+<label for="r5">Share of the gain caused by training: <b id="r5v">50%</b></label>
+<input id="r5" type="range" min="0" max="100" value="50">
+<div class="res" id="roiOut"></div></div></section>
+
+<section id="log" hidden><div class="card"><h2>My log</h2><div id="logList"></div>
+<button class="btn alt" id="copy">Copy log</button></div></section>
+
+<footer>Works offline once opened. Your answers and coins stay on this device only.</footer>
+</div>
+
+<script>
+const SECRET="change-me-before-deploy"; // must match gift.html
+// topic, insight, 15-minute action
+const T=[
+["Capability gap map","Gaps hide in the work, not in surveys. Ask project heads which task slipped last and why.","Pick one project and list its three biggest skill-related slips this quarter."],
+["Training needs from incidents","Near misses are free training-needs data.","Review last month's near-miss log and tag each to a missing skill."],
+["Annual learning roadmap","A roadmap with more than five priorities has none.","Cut your annual plan to five outcomes and name an owner for each."],
+["Safety training that sticks","People recall drills they performed, not slides they saw.","Replace one safety slide session with a 15-minute hands-on drill."],
+["Fire warden coverage","Coverage per shift matters more than headcount trained.","Check that every shift at every site has a trained warden."],
+["Supervisor capability","Supervisors turn strategy into daily behaviour. They are your highest-leverage group.","Shadow one supervisor for an hour and note three coaching moments."],
+["Planning skills for engineers","Poor planning shows up as rework, so measure rework.","Ask one project for last month's rework hours and link them to planning gaps."],
+["Sales performance","Sales training fails without manager follow-up in the next 30 days.","Give each sales manager one post-training coaching question to ask."],
+["Training ROI","Attribution beats precision. Estimate honestly and show the range.","Run the ROI tab on your last program with conservative attribution."],
+["Behaviour change evidence","Behaviour change is visible to the boss, not to the learner.","Send three managers a two-question behaviour check on a past program."],
+["Budget defence","Link every budget line to a business risk or target.","Write one sentence linking each budget line to a risk it reduces."],
+["Vendor scorecard","Rate vendors on transfer to the job, not on happy-sheet scores.","Draft a four-criteria scorecard and apply it to your top vendor."],
+["Audit readiness","An audit trail is a learning record kept as you go.","Spot check five training files for attendance, content and evidence."],
+["Learning governance","Clear approvals prevent ad hoc training that nobody owns.","Write a one-page rule on who approves which spend."],
+["Succession depth","Name two ready-in-12-months successors for each critical role.","List your five most critical roles and check bench strength."],
+["Internal mobility","People stay when they can see their next move.","Map one possible move between two NBTC businesses."],
+["Site exposure visits","Seeing the work makes support staff care about delays.","Plan one site visit with a task: observe, then explain it back."],
+["Expert knowledge capture","Retiring experts take unwritten rules with them.","Record a 10-minute interview with one senior expert."],
+["Mentor-mentee design","Mentoring works with a clear topic and a review rhythm.","Pair one mentor and one mentee on a six-week topic."],
+["Trainee programme","The first 90 days decide whether trainees stay.","Define three 90-day outcomes for the next trainee cohort."],
+["Technician apprenticeship","Structured rotations beat random exposure.","Sketch a four-station rotation for a new technician."],
+["Competency framework","A framework matters only if it changes hiring, training and promotion.","Take one role and link three competencies to a training item each."],
+["Skill matrix","A live skill matrix shows who can cover whom.","Build a mini matrix for one team of eight."],
+["Cross-training for cover","Single-person dependencies are operational risk.","Find one task only one person can do and train a backup."],
+["Leadership pipeline","Leaders stumble at transitions: first-time supervisor and first-time manager.","Pick the next transition cohort and write their top three challenges."],
+["First-time manager kit","New managers need simple rules for feedback, delegation and one-on-ones.","Draft a one-page starter kit for new managers."],
+["Coaching culture","A coach asks before telling.","For one day, ask three questions before giving any answer."],
+["Feedback loops","Feedback gets used when it is quick and specific.","Give one person specific feedback in under two minutes."],
+["Meeting effectiveness","Poor meetings quietly drain capability time.","Cut one standing meeting to 25 minutes with a written outcome."],
+["Digital collaboration skills","Tool training should follow real tasks, not menu tours.","Teach one Teams feature that saves a team an hour a week."],
+["Task management habits","Shared priorities reduce urgent-by-default work.","Introduce a weekly top-three list in one team."],
+["Microlearning","Five minutes a day beats one day a quarter.","Convert one training topic into five three-minute pieces."],
+["LMS adoption","Adoption comes from managers using it, not from reminders.","Ask five managers to assign one course to their team."],
+["Learning analytics","Track a few decision-ready numbers: coverage, time to competence, behaviour change.","Choose three metrics and define each in one line."],
+["Time to competence","Faster time to competence is the best story for operations leaders.","Find how many weeks one role takes to work independently."],
+["Onboarding","Good onboarding connects people to purpose, safety and a buddy.","Check that the last three joiners had all three."],
+["Culture building","Culture is what people do when no one is watching.","Observe one site practice and tell the story of why it exists."],
+["Values in action","Values need stories from your own plants and projects.","Collect one real story where someone lived a value."],
+["Employee engagement","Engagement scores matter only if you act and report back.","Pick the lowest-scoring area and commit one visible action."],
+["Recognition","Frequent, specific recognition is cheap and powerful.","Write a thank-you note naming exactly what someone did."],
+["Team building on site","Team sessions work when they solve a real work problem.","Design a 45-minute session around a real handover issue."],
+["Change management","People resist loss, not change. Name what is being lost.","List what one change takes away from your team."],
+["Stakeholder mapping","L&D wins when it knows who can say yes and who can block.","Map five stakeholders by influence and support."],
+["Executive sponsorship","Sponsors who attend the first and last session change outcomes.","Ask one leader to open and close a programme."],
+["Business partnering","Arrive with a business problem, not a course catalogue.","Ask one head what keeps them up at night, then listen."],
+["Needs analysis interview","Five why-questions reveal the real gap.","Prepare five why-questions for the next training request."],
+["Instructional design","Start from the performance outcome and design backwards.","Rewrite one course outcome starting with a verb the learner will do."],
+["ADDIE in practice","Short cycles of design and test beat long design phases.","Pilot one module with five learners before full rollout."],
+["Storyboarding","A storyboard is cheaper to fix than a finished video.","Storyboard a three-minute module in six frames."],
+["Scenario-based learning","Scenarios let people practise decisions without real risk.","Write a three-option scenario from last week's site issue."],
+["Train-the-trainer","Experts become trainers when you give them structure.","Give one expert a lesson plan template and coach their first session."],
+["Facilitation craft","Silence is a facilitation tool. Wait seven seconds.","Use a seven-second pause after your next question."],
+["Soft skills for technical people","Frame them as engineering problems: clear communication reduces rework.","Link one soft-skill topic to a measurable work outcome."],
+["Communication across cultures","Mixed-nationality teams need shared definitions and repeated confirmation.","Add a read-back step to one key handover."],
+["Local talent development","Pipelines need early, graduate and on-the-job stages.","Draft a three-stage pathway for local graduates."],
+["Language support","Basic language support lifts safety and quality.","List the ten critical phrases a site crew must share."],
+["Contractor training","Contractors carry the same risk as employees.","Check that contractor induction covers your top three hazards."],
+["Compliance and capability","Compliance is the floor, capability the ceiling.","Pick one mandatory course and add one skill beyond it."],
+["Quality capability","Quality is trained at the workstation.","Create one visual job aid for a frequent defect."],
+["Project management basics","Project teams need shared language for scope, risk and change.","Define five terms every project member must use the same way."],
+["Estimating skills","Estimation improves with feedback on past projects.","Compare one estimate to actuals and teach the gap."],
+["Lessons learned","Lessons count only if they change a checklist.","Convert one lesson into a checklist item."],
+["Communities of practice","Peers solve problems faster than courses do.","Start a monthly 30-minute session for engineers on one topic."],
+["Learning circles","Short weekly circles build habit and trust.","Start one circle of six people on one real problem."],
+["Multi-location learning","Same content, local facilitators, shared metrics.","Compare completion and use at two locations."],
+["External certification","Certifications should map to roles, not collections.","List which role needs which certificate and why."],
+["AI for L&D productivity","AI speeds up drafts. Judgement stays human.","Use AI to draft a needs-analysis questionnaire, then edit it."],
+["AI practice partner","A good AI coach asks questions and gives you practice.","Role-play a tough conversation with an AI tool for five minutes."],
+["Data privacy and AI use","Set clear rules about what staff may paste into AI tools.","Write three do and don't rules for AI use in training."],
+["Personal learning rhythm","Leaders who learn visibly make learning normal.","Block 20 minutes daily and share one takeaway weekly."],
+["Wellbeing and workload","Tired teams learn poorly. Schedule around workload peaks.","Check the training calendar against project peaks."],
+["Reporting to leadership","One page, three numbers, one ask.","Draft a one-page quarterly learning report."],
+["Legacy and impact","Your best work is capability that outlasts your role.","Write the one capability NBTC will keep after you."]
+];
+const MODES=["Insight","Stakeholder challenge","AI workshop","15-minute action","Measure it"];
+const WHO=["the Group CFO","a Project Director","a Plant Manager","the HSE Head","the CEO"];
+const LV=[[0,"Apprentice"],[100,"Technician"],[300,"Supervisor"],[700,"Manager"],[1500,"Director"],[3000,"Group Head"]];
+const LADDER=[5,5,10,10,15,20,50];
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const key=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const today=()=>key(new Date());
+const yest=()=>{const d=new Date();d.setDate(d.getDate()-1);return key(d)};
+let S={log:[],coins:0,earned:0,start:today(),claim:{last:"",n:0},used:[],treats:[["Coffee with a favourite person",30],["One guilt-free hour off",100],["Treat dinner",300]]};
+try{const x=JSON.parse(localStorage.getItem("tbt2")||"null");if(x)S=Object.assign(S,x)}catch(e){}
+const save=()=>{try{localStorage.setItem("tbt2",JSON.stringify(S))}catch(e){}};
+save();
+const earn=c=>{S.coins+=c;S.earned+=c};
+const jd=()=>Math.round((new Date(today()+"T00:00:00")-new Date(S.start+"T00:00:00"))/864e5);
+const dones=()=>S.log.filter(e=>!e.type);
+function streak(){const days=new Set(dones().map(e=>e.d));let n=0,d=new Date();
+ if(!days.has(key(d)))d.setDate(d.getDate()-1);
+ while(days.has(key(d))){n++;d.setDate(d.getDate()-1)}return n}
+function level(){let i=0;LV.forEach((l,k)=>{if(S.earned>=l[0])i=k});return i}
+function head(){$("#bStreak").textContent=streak()+"-day streak";$("#bCoins").textContent=S.coins+" coins";$("#bLvl").textContent=LV[level()][1];
+ const i=level(),nx=LV[i+1];$("#lvlName").textContent="Level: "+LV[i][1];
+ $("#lvlNext").textContent=nx?(nx[0]-S.earned)+" coins earned to reach "+nx[1]:"Top level reached";
+ $("#lvlBar").style.width=(nx?Math.min(100,(S.earned-LV[i][0])/(nx[0]-LV[i][0])*100):100)+"%"}
+
+function aiPrompt(ti,t){const ctx=`Topic: ${t[0]}. Context: ${t[1]}`;
+ const base="Act as a senior L&D advisor to the head of learning at a Kuwait-based engineering, EPC and manufacturing group. ";
+ return [
+ base+ctx+" Give me: 1) three risks I might be missing, 2) a 30-day action plan with owners, 3) two measures I can report to senior leadership. Keep it practical and plain.",
+ "Act as a sceptical operations director who thinks training wastes time. I will argue for investment in: "+t[0]+". "+t[1]+" Challenge me with one tough question at a time and score my answer out of 10 after each.",
+ base+ctx+" Draft a one-page brief I can send to my senior leaders, with a headline, why it matters now, the ask, and how we will measure success. Then give me a shorter WhatsApp version."
+ ][ti%3]}
+
+function renderToday(){const n=jd(),k=n%365,ti=k%73,mode=k%5,t=T[ti],el=$("#today");
+ const done=dones().some(e=>e.d===today());
+ let body="",task="";
+ if(mode===0){body=`<p>${esc(t[1])}</p>`;task="Where does this show up in NBTC's engineering, EPC, manufacturing or project businesses? Write one example and one next step."}
+ else if(mode===1){const w=WHO[ti%5];body=`<p>${esc(w[0].toUpperCase()+w.slice(1))} asks: "Why should I release people for ${esc(t[0].toLowerCase())}?"</p><p class="mute">Hint: ${esc(t[1])}</p>`;task="Write your three-line answer."}
+ else if(mode===2){body=`<p>${esc(t[1])}</p><pre id="pr">${esc(aiPrompt(ti,t))}</pre><button class="btn alt" id="cp">Copy prompt</button>`;task="Run the prompt in your AI tool. Note the one idea you will use. Do not paste confidential data."}
+ else if(mode===3){body=`<p>${esc(t[2])}</p><p class="mute">Why: ${esc(t[1])}</p>`;task="What did you do and what did you notice?"}
+ else{body=`<p>${esc(t[1])}</p>`;task=`Picture six months from now with "${t[0]}" working well. What would you see, and which one number would you track?`}
+ el.innerHTML=(S.claim.last!==today()?`<div class="card"><b>Your daily reward is waiting.</b> <button class="btn" id="goClaim" style="margin:0 0 0 8px">Claim</button></div>`:"")+
+ `<div class="card"><div class="site">Day ${k+1} of 365${n>=365?" · Year "+(Math.floor(n/365)+1):""} · ${MODES[mode]}</div><h2>${esc(t[0])}</h2>${body}
+ <label for="note">${esc(task)}</label><textarea id="note" rows="4" ${done?"disabled":""} placeholder="Your answer"></textarea>
+ <button class="btn" id="finish" ${done?"disabled":""}>${done?"Completed today":"Complete day"}</button><div class="msg" id="fmsg"></div></div>`;
+ const g=$("#goClaim");if(g)g.onclick=()=>{show("game")};
+ const cp=$("#cp");if(cp)cp.onclick=async()=>{try{await navigator.clipboard.writeText($("#pr").textContent);cp.textContent="Copied"}catch(e){cp.textContent="Copy not allowed"}};
+ const f=$("#finish");if(!done)f.onclick=()=>{const prior=streak(),c=10+Math.min(prior+1,10);
+  S.log.unshift({d:today(),t:t[0],site:MODES[mode],note:$("#note").value.trim(),coins:c});earn(c);save();head();renderLog();renderGame();
+  f.disabled=true;f.textContent="Completed today";$("#note").disabled=true;$("#fmsg").textContent="+"+c+" coins. Streak bonus included."}}
+
+function renderGame(){
+ const b=$("#claimBox");
+ if(S.claim.last===today())b.innerHTML=`<p class="mute">Claimed today. Come back tomorrow. Day ${((S.claim.n-1)%7)+1} of 7 in your reward cycle.</p>`;
+ else{const c=S.claim.last===yest()?S.claim.n+1:1;b.innerHTML=`<p>Reward chest for day ${((c-1)%7)+1} of 7: <b>${LADDER[(c-1)%7]} coins</b>. Day 7 pays 50.</p><button class="btn" id="claim">Claim reward</button>`;
+  $("#claim").onclick=()=>{const c=S.claim.last===yest()?S.claim.n+1:1,r=LADDER[(c-1)%7];S.claim={last:today(),n:c};earn(r);S.log.unshift({d:today(),t:"Daily reward +"+r+" coins",site:"Reward",type:"g",note:""});save();head();renderGame();renderToday();renderLog()}}
+ $("#shop").innerHTML=S.treats.map((t,i)=>`<div class="row"><span>${esc(t[0])}<br><span class="mute">${t[1]} coins</span></span><button class="btn alt" data-i="${i}" ${S.coins<t[1]?"disabled":""}>Redeem</button></div>`).join("")||"<p class='mute'>No treats yet.</p>";
+ $$("#shop [data-i]").forEach(x=>x.onclick=()=>{const t=S.treats[+x.dataset.i];if(S.coins<t[1])return;S.coins-=t[1];S.log.unshift({d:today(),t:"Redeemed: "+t[0],site:"Reward",type:"r",note:"-"+t[1]+" coins"});save();head();renderGame();renderLog()})}
+$("#tadd").onclick=()=>{const n=$("#tn").value.trim(),p=parseInt($("#tp").value);if(!n||!(p>0))return;S.treats.push([n,p]);$("#tn").value=$("#tp").value="";save();renderGame()};
+
+const sig=s=>{let h=2166136261;const x=SECRET+s;for(let i=0;i<x.length;i++){h^=x.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)};
+$("#gbtn").onclick=()=>{const m=$("#gmsg");let c=$("#gcode").value.trim();m.style.color="";
+ try{if(!c.startsWith("TBT-"))throw 0;const [p,s]=c.slice(4).split(".");if(sig(p)!==s)throw 0;
+  const o=JSON.parse(decodeURIComponent(escape(atob(p.replace(/-/g,"+").replace(/_/g,"/")))));
+  if(S.used.includes(o.i)){m.textContent="This gift was already redeemed.";return}
+  S.used.push(o.i);earn(o.a);S.log.unshift({d:today(),t:"Gift received: +"+o.a+" coins",site:"Gift",type:"g",note:o.m||""});save();head();renderLog();renderGame();
+  m.textContent="+"+o.a+" coins"+(o.m?". Message: "+o.m:"");$("#gcode").value=""}
+ catch(e){m.textContent="That code isn't valid. Check it was copied in full.";m.style.color="#a63a2b"}};
+
+function renderLog(){const L=$("#logList");
+ if(!S.log.length){L.innerHTML="<p>Nothing yet. Complete today's talk to start your log.</p>";return}
+ L.innerHTML=`<p>${dones().length} days completed.</p>`+S.log.map(e=>`<div class="entry"><small>${e.d} · ${esc(e.site)}${e.coins?" · +"+e.coins+" coins":""}</small><br><b>${esc(e.t)}</b>${e.note?`<br>${esc(e.note)}`:""}</div>`).join("")}
+$("#copy").onclick=async()=>{const t=S.log.map(e=>`${e.d} | ${e.site} | ${e.t}\n${e.note}`).join("\n\n");
+ try{await navigator.clipboard.writeText(t);$("#copy").textContent="Copied"}catch(e){$("#copy").textContent="Copy not allowed"}};
+
+function roi(){const v=i=>parseFloat($("#r"+i).value)||0;$("#r5v").textContent=v(5)+"%";
+ const cost=v(1),n=v(2),g=v(3),m=v(4),a=v(5)/100;
+ if(!cost||!n||!g||!m){$("#roiOut").textContent="Enter the numbers above to see ROI and benefit-cost ratio.";return}
+ const ben=n*g*m*a,pct=(ben-cost)/cost*100;
+ $("#roiOut").innerHTML=`<div class="big">${pct.toFixed(0)}% ROI</div><p>Benefit ${ben.toLocaleString(undefined,{maximumFractionDigits:0})} against cost ${cost.toLocaleString()}. Benefit-cost ratio ${(ben/cost).toFixed(2)}.</p>`}
+$$("#roi input").forEach(i=>i.oninput=roi);roi();
+
+function show(v){$$("nav button").forEach(x=>x.setAttribute("aria-selected",x.dataset.v===v));["today","game","roi","log"].forEach(s=>$("#"+s).hidden=s!==v)}
+$$("nav button").forEach(b=>b.onclick=()=>show(b.dataset.v));
+
+renderToday();renderGame();renderLog();head();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
