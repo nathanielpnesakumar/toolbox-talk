@@ -9,7 +9,7 @@ pre{white-space:pre-wrap;word-break:break-all;background:#fff;padding:12px;borde
 <label for="m">Message (optional)</label><textarea id="m" rows="2" maxlength="140"></textarea>
 <button id="g">Make gift code</button><pre id="o" hidden></pre><button id="c" hidden>Copy code</button>
 <script>
-const SECRET="change-me-before-deploy"; // must match index.html
+const SECRET="Sheaffer"; // must match index.html
 const sig=s=>{let h=2166136261;const x=SECRET+s;for(let i=0;i<x.length;i++){h^=x.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)};
 document.getElementById("g").onclick=()=>{const a=parseInt(document.getElementById("a").value);if(!(a>0))return;
 const o={a,i:Math.random().toString(36).slice(2,8),m:document.getElementById("m").value.trim()};
